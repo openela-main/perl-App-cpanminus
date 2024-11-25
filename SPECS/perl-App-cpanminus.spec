@@ -1,6 +1,6 @@
 Name:           perl-App-cpanminus
 Version:        1.7044
-Release:        14%{?dist}
+Release:        14.1%{?dist}
 Summary:        Get, unpack, build and install CPAN modules
 # Other files:  GPL+ or Artistic
 ## unbundled
@@ -134,12 +134,14 @@ with "%{_libexecdir}/%{name}/test".
 podselect lib/App/cpanminus.pm > lib/App/cpanminus.pod
 
 for F in bin/cpanm lib/App/cpanminus/fatscript.pm; do
+    # CVE-2024-45321 - patch to use https instead of http
+    perl -pi -E 's{http://(cpan\.cpantesters\.org|www\.cpan\.org|backpan\.perl\.org|cpan\.metacpan\.org|fastapi\.metacpan\.org|cpanmetadb\.plackperl\.org)}{https://$1}g' "$F"
     %{SOURCE1} --libdir lib --filter '^App/cpanminus' "$F" > "${F}.stripped"
     perl -c -Ilib "${F}.stripped"
     mv "${F}.stripped" "$F"
 done
 
-%patch0 -p1
+%patch -P0 -p1
 
 # Help generators to recognize Perl scripts
 for F in t/*.t; do
@@ -170,14 +172,18 @@ make test
 %license LICENSE
 %doc Changes README
 %{perl_vendorlib}/*
-%{_mandir}/man3/*
 %{_mandir}/man1/*
+%{_mandir}/man3/*
 %{_bindir}/cpanm
 
 %files tests
 %{_libexecdir}/%{name}
 
 %changelog
+* Thu Sep 19 2024 Jitka Plesnikova <jplesnik@redhat.com> - 1.7044-14.1
+- Patch the code to use https instead of http (CVE-2024-45321)
+- Resolves: RHEL-56519
+
 * Mon Aug 09 2021 Mohan Boddu <mboddu@redhat.com> - 1.7044-14
 - Rebuilt for IMA sigs, glibc 2.34, aarch64 flags
   Related: rhbz#1991688
