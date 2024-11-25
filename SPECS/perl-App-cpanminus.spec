@@ -1,20 +1,18 @@
 Name:           perl-App-cpanminus
 Version:        1.7044
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Get, unpack, build and install CPAN modules
 License:        GPL+ or Artistic
-Group:          Development/Libraries
 URL:            https://metacpan.org/release/App-cpanminus
 Source0:        https://cpan.metacpan.org/authors/id/M/MI/MIYAGAWA/App-cpanminus-%{version}.tar.gz
 Source1:        fatunpack
 BuildArch:      noarch
 BuildRequires:  %{_bindir}/podselect
 BuildRequires:  coreutils
-BuildRequires:  findutils
 BuildRequires:  make
-BuildRequires:  perl-interpreter
 BuildRequires:  perl-generators
-BuildRequires:  perl(ExtUtils::MakeMaker) >= 6.30
+BuildRequires:  perl-interpreter
+BuildRequires:  perl(ExtUtils::MakeMaker) >= 6.76
 BuildRequires:  perl(File::Path)
 BuildRequires:  perl(File::Spec)
 BuildRequires:  perl(Getopt::Long)
@@ -119,18 +117,19 @@ scripting. When running, it requires only 10 MB of RAM.
 podselect lib/App/cpanminus.pm > lib/App/cpanminus.pod
 
 for F in bin/cpanm lib/App/cpanminus/fatscript.pm; do
+    # CVE-2024-45321 - patch to use https instead of http
+    perl -pi -E 's{http://(cpan\.cpantesters\.org|www\.cpan\.org|backpan\.perl\.org|cpan\.metacpan\.org|fastapi\.metacpan\.org|cpanmetadb\.plackperl\.org)}{https://$1}g' "$F"
     %{SOURCE1} --libdir lib --filter '^App/cpanminus' "$F" > "${F}.stripped"
     perl -c -Ilib "${F}.stripped"
     mv "${F}.stripped" "$F"
 done
 
 %build
-perl Makefile.PL INSTALLDIRS=vendor
+perl Makefile.PL INSTALLDIRS=vendor NO_PACKLIST=1
 make %{?_smp_mflags}
 
 %install
 make pure_install DESTDIR=%{buildroot}
-find %{buildroot} -type f -name .packlist -delete
 %{_fixperms} %{buildroot}/*
 
 %check
@@ -145,6 +144,9 @@ make test
 %{_bindir}/cpanm
 
 %changelog
+* Tue Oct 29 2024 Jitka Plesnikova <jplesnik@redhat.com> - 1.7044-6
+- Patch the code to use https instead of http (CVE-2024-45321)
+
 * Fri Mar 29 2019 Jitka Plesnikova <jplesnik@redhat.com> - 1.7044-5
 - Rebuild with enable hardening (bug #1636329)
 
