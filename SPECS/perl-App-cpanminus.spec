@@ -1,6 +1,6 @@
 Name:           perl-App-cpanminus
 Version:        1.7044
-Release:        14.1%{?dist}
+Release:        15%{?dist}
 Summary:        Get, unpack, build and install CPAN modules
 # Other files:  GPL+ or Artistic
 ## unbundled
@@ -180,9 +180,9 @@ make test
 %{_libexecdir}/%{name}
 
 %changelog
-* Thu Sep 19 2024 Jitka Plesnikova <jplesnik@redhat.com> - 1.7044-14.1
+* Thu Sep 19 2024 Jitka Plesnikova <jplesnik@redhat.com> - 1.7044-15
 - Patch the code to use https instead of http (CVE-2024-45321)
-- Resolves: RHEL-56519
+- Resolves: RHEL-56520
 
 * Mon Aug 09 2021 Mohan Boddu <mboddu@redhat.com> - 1.7044-14
 - Rebuilt for IMA sigs, glibc 2.34, aarch64 flags
